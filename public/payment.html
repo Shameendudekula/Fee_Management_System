@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style4.css"> <!-- Ensure this path is correct -->
+    <title>fee Section</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        /* Add your existing styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background: #35424a;
+            color: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            margin: 0;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            background: #ffffff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            width: 300px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: #ffffff;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #35424a;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background-color: #f9f9f9;
+            color: black;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {background-color: #f1f1f1;}
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Receipt Styles */
+        .receipt {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .receipt img {
+            width: 100px;
+            height: auto;
+        }
+
+        /* Payment Progress Styles */
+        .payment-progress {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .payment-progress label {
+            margin: 10px 0;
+        }
+
+        /* Filter Options */
+        .filter-options {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fee Management System</h1>
+    </header>
+    <main>
+        <section id="admin-login-section" style="display: none;">
+            <div class="login-container">
+                <div class="login-box">
+                    <h2>Admin Login</h2>
+                    <form id="admin-login-form" onsubmit="return validateAdminLogin()">
+                        <label for="admin-username">Admin Username:</label>
+                        <input type="text" id="admin-username" name="admin-username" required><br><br>
+                        <label for="admin-password">Admin Password:</label>
+                        <input type="password" id="admin-password" name="admin-password" required><br><br>
+                        <button type="submit">Login</button>
+                    </form>
+                    <p id="admin-login-error" class="error-message" style="display: none;">Invalid admin username or password. Please try again.</p>
+                    <p><a href="#signup-section" onclick="showSection('signup-section')">Sign Up</a> | <a href="#login-section" onclick="showSection('login-section')">User   Login</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin-dashboard" style="display: none;">
+            <h2>Admin Dashboard</h2>
+            <div>
+                <p>Total Students: <strong id="total-students">0</strong></p>
+                <p>Total Collection: <strong id="total-collection">₹0</strong></p>
+                <p>Pending Dues: <strong id="pending-dues">₹0</strong></p>
+                <p>Today's Transactions: <strong id="todays-transactions">0</strong></p>
+            </div>
+            <button onclick="showPaymentManagement()">Payment Management</button>
+            <button onclick="showStudentManagement()">Student Management</button>
+            
+            <button onclick="showReceipts('admin')">View Receipts</button>
+            <button onclick="logoutAdmin()">Logout</button>
+        </section>
+
+        <section id="payment-management-section" style="display: none;">
+            <h2>Payment Management</h2>
+            <div class="filter-options">
+                <input type="text" id="payment-filter" placeholder="Filter by amount or status">
+                <button onclick="filterPayments()">Filter Payments</button>
+                <button onclick="sortPayments()">Sort Payments</button>
+            </div>
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Username</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Admission Number</th>
+                    <th>Purpose</th>
+                    <th>Referral Code</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="payment-management-records">
+                    <!-- Payment records will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="showAdminDashboard()">Back to Admin Dashboard</button>
+        </section>
+
+        <section id="student-management-section" style="display: none;">
+            <h2>Student Management</h2>
+            <table>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+                <tbody id="student-management-records">
+                    <!-- Student records will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="showAdminDashboard()">Back to Admin Dashboard</button>
+        </section>
+
+        <section id="login-section">
+            <h2>User Login</h2>
+            <div class="login-container">
+                <div class="login-box">
+                    <form id="login-form" onsubmit="return validateLogin()">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required placeholder="Enter your username"><br><br>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password"><br><br>
+                        <button type="submit">Login</button>
+                        <p><a href="#forgot-password-section" onclick="showSection('forgot-password-section')">Forgot Password?</a></p>
+                        <p><a href="#admin-login-section" onclick="showSection('admin-login-section')">Admin Login</a></p>
+                        <p><a href="#signup-section" onclick="showSection('signup-section')">No account? Sign Up</a></p>
+                    </form>
+                    <p id="login-error" class="error-message" style="display: none;">Invalid username or password. Please try again.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="forgot-password-section" style="display: none;">
+            <h2>Forgot Password</h2>
+            <form id="forgot-password-form" onsubmit="return resetPassword()">
+                <label for="forgot-email">Enter your email:</label>
+                <input type="email" id="forgot-email" name="forgot-email" required placeholder="Enter your registered email"><br><br>
+                <button type="submit">Reset Password</button>
+                <p><a href="#login-section" onclick="showSection('login-section')">Back to Login</a></p>
+            </form>
+            <p id="forgot-error" class="error-message" style="display: none;">No account found with that email.</p>
+        </section>
+        
+        <section id="signup-section" style="display: none;">
+            <h2>Sign Up</h2>
+            <form id="signup-form" onsubmit="return signUp()">
+                <label for="new-username">Username:</label>
+                <input type="text" id="new-username" name="new-username" required placeholder="Choose a username">
+                <label for="new-email">Email:</label>
+                <input type="email" id="new-email" name="new-email" required placeholder="Enter your email">
+                <label for="new-password">Password:</label>
+                <input type="password" id="new-password" name="new-password" required placeholder="Create a password">
+                <button type="submit">Sign Up</button>
+                <p><a href="#login-section" onclick="showSection('login-section')">Already have an account? Login</a></p>
+            </form>
+        </section>
+
+        <section id="timeout-section" style="display: none;">
+            <h2>Session Timeout</h2>
+            <p>Your session has expired. Please log in again.</p>
+            <a href="#login-section" onclick="showSection('login-section')">Login</a>
+        </section>
+
+        <section id="content-section" style="display: none;">
+            <h2>Welcome to the Fee Management System</h2>
+            <p>You have successfully logged in!</p>
+            <p>Here you can manage your fees, view payment history, and more.</p>
+            <button onclick="showPaymentHistory()">Go to Payment History</button>
+            <button onclick="showPaymentReminders()">Go to Payment Reminders</button>
+            <button onclick="showFeePayment()">Go to Fee Payment</button>
+            <button onclick="showSection('account-settings-section')">Account Settings</button>
+            <button onclick="logout()">Logout</button>
+        </section>
+
+        <section id="payment-history-section" style="display: none;">
+            <h2>Your Payment Records</h2>
+            <table>
+                <tr>
+                    <th>Select</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Admission Number</th>
+                    <th>Purpose</th>
+                    <th>Referral Code</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="payment-records">
+                    <!-- Payment records will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="deleteSelectedPayments()">Delete Selected Payments</button>
+            <button onclick="showSection('content-section')">Back to Main Content</button>
+        </section>
+
+        <section id="payment-reminders-section" style="display: none;">
+            <h2>Your Upcoming Payments</h2>
+            <ul>
+                <li>Tuition Fee - Due on 2025-06-01</li>
+                <li>Library Fee - Due on 2025-07-15</li>
+            </ul>
+            <button onclick="showSection('content-section')">Back to Main Content</button>
+        </section>
+
+        <section id="fee-payment-section" style="display: none;">
+            <h2>Student Fee Payment</h2>
+            <div class="container">
+                <div class="form-step" id="step1">
+                    <h2>Step 1: Fill Student Details</h2>
+                    <form id="form1">
+                        <img src="https://imgs.search.brave.com/439qbX2uo10FAJDEk5DMuvXCwELWe27OdPZEcrSig_Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vdGh1bWIv/ZS9lMy9KYXdhaGFy/bGFsX05laHJ1X1Rl/Y2hub2xvZ2ljYWxf/VW5pdmVyc2l0eSxf/QW5hbnRhcHVyX2xv/Z28ucG5nLzIyMHB4/LUphd2FoYXJsYWxf/TmVocnVfVGVjaG5v/bG9naWNhbF9Vbml2/ZXJzaXR5LF9BbmFu/dGFwdXJfbG9nby5w/bmc" alt="JNTU Logo" style="width: 100%; max-width: 50px;"> <!-- Ensure this path is correct -->
+                        <h3>JNTU ENGG COLLEGE HOSTEL ANANTAPUR | JNTU COLLEGE ANANTAPUR, ANANTAPUR-515002</h3>
+                        <label for="feeType">Payment Category*:</label>
+                        <select id="feeType" required onchange="updateTotalFee()">
+                            <option value="hostel-basic">Basic Hostel Plan - $3000/month</option>
+                            <option value="hostel-standard">Standard Hostel Plan - $3500/month</option>
+                            <option value="college-undergraduate">Undergraduate Program - $8000/year</option>
+                            <option value="college-postgraduate">Postgraduate Program - $10000/year</option>
+                            <option value="sweden-batch">Sweden Batch Fee - $150,000</option>
+                            <option value="examination-regular">Regular Examination Fee - $715/exam</option>
+                            <option value="examination-supplementary">Supplementary Examination Fee - $315/exam</option>
+                        </select><br><br>
+
+                        <label for="rollNumber">ROLL NUMBER *:</label>
+                        <input type="text" id="rollNumber" required placeholder="Enter Roll Number"><br><br>
+
+                        <label for="studentName">STUDENT NAME *:</label>
+                        <input type="text" id="studentName" required placeholder="Enter Student Name"><br><br>
+
+                        <label for="email">EMAIL ID:</label>
+                        <input type="email" id="email" required placeholder="Enter your email"><br><br>
+
+                        <label for="mobile">MOBILE NUMBER *:</label>
+                        <input type="tel" id="mobile" required placeholder="Enter your mobile number"><br><br>
+
+                        <label for="course">COURSE *:</label>
+                        <select id="course" required>
+                            <option value="">--Select COURSE--</option>
+                            <option value="B.Tech">B.Tech</option>
+                            <option value="M.Tech">M.Tech</option>
+                            <option value="MBA">MBA</option>
+                        </select><br><br>
+
+                        <label for="year">YEAR OF STUDY *:</label>
+                        <select id="year" required>
+                            <option value="">--Select YEAR OF STUDY--</option>
+                            <option value="1">I YEAR</option>
+                            <option value="2">II YEAR</option>
+                            <option value="3">III YEAR</option>
+                            <option value="4">IV YEAR</option>
+                        </select><br><br>
+
+                        <label for="totalFee">TOTAL FEE *:</label>
+                        <input type="number" id="totalFee" required placeholder="Enter Total Fee" oninput="updateTotalFee()"><br><br>
+
+                        <label for="remarks">Remarks:</label>
+                        <textarea id="remarks" placeholder="Enter any remarks"></textarea><br><br>
+
+                        <h3>Enter Your Details</h3>
+                        <label for="selectType">Individual</label>
+                        <input type="radio" id="individual" name="type" value="individual" required>
+                        <label for="selectType">Organisation / Corporate</label>
+                        <input type="radio" id="organisation" name="type" value="organisation"><br><br>
+
+                        <label for="name">Name *:</label>
+                        <input type="text" id="name" required placeholder="Enter Name"><br><br>
+
+                        
+
+                        <label for="dob">Date of Birth *:</label>
+                        <input type="date" id="dob" required><br><br>
+
+                        <label for="mobileNumber">Mobile No *:</label>
+                        <input type="tel" id="mobileNumber" required placeholder="Enter Mobile Number"><br><br>
+
+                        <label for="emailId">Email ID:</label>
+                        <input type="email" id="emailId" required placeholder="Enter Email ID"><br><br>
+
+                        <label for="captcha">Enter the text as shown in the image *:</label>
+                        <span id="captcha-display"></span>
+                        <input type="text" id="captcha" required><br><br>
+
+                        <button type="button" class="back-btn" onclick="showSection('content-section')">Back</button>
+                        <button type="reset">Reset</button>
+                        <button type="button" class="next-btn" onclick="showStep(2)">Next</button>
+                    </form>
+                </div>
+
+                <div class="form-step" id="step2" style="display:none;">
+                    <h2>Verify Payment Details</h2>
+                    <img src="https://imgs.search.brave.com/439qbX2uo10FAJDEk5DMuvXCwELWe27OdPZEcrSig_Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vdGh1bWIv/ZS9lMy9KYXdhaGFy/bGFsX05laHJ1X1Rl/Y2hub2xvZ2ljYWxf/VW5pdmVyc2l0eSxf/QW5hbnRhcHVyX2xv/Z28ucG5nLzIyMHB4/LUphd2FoYXJsYWxf/TmVocnVfVGVjaG5v/bG9naWNhbF9Vbml2/ZXJzaXR5LF9BbmFu/dGFwdXJfbG9nby5w/bmc" alt="JNTU Logo" style="width: 100%; max-width: 50px;">
+                    <h3>Payment Details</h3>
+                    <p><strong>Payment Category:</strong> <span id="verify-feeType"></span></p>
+                    <p><strong>ROLL NUMBER:</strong> <span id="verify-rollNumber"></span></p>
+                    <p><strong>STUDENT NAME:</strong> <span id="verify-studentName"></span></p>
+                    <p><strong>EMAIL ID:</strong> <span id="verify-email"></span></p>
+                    <p><strong>MOBILE NUMBER:</strong> <span id="verify-mobile"></span></p>
+                    <p><strong>COURSE:</strong> <span id="verify-course"></span></p>
+                    <p><strong>YEAR OF STUDY:</strong> <span id="verify-year"></span></p>
+                    <p><strong>TOTAL FEE:</strong> <span id="verify-totalFee"></span></p>
+                    <p><strong>Remarks:</strong> <span id="verify-remarks"></span></p>
+                    <p><strong>Total Amount:</strong> <span id="verify-totalAmount"></span></p>
+
+                    <button type="button" class="back-btn" onclick="showStep(1)">Back</button>
+                    <button type="button" class="next-btn" onclick="showStep(3)">Next</button>
+                </div>
+
+                <div class="form-step" id="step3" style="display:none;">
+                    <h2>Payment Progress</h2>
+                    <div id="payment-methods">
+                        <h3>Select Payment Method</h3>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="Net Banking" required onclick="showBankingDetails()"> Net Banking
+                        </label><br>
+                        <div id="net-banking-details" style="display: none;">
+                            <label for="bankName">Bank Name:</label>
+                            <select id="bankName">
+                                <option value="Bank A">Bank A</option>
+                                <option value="Bank B">Bank B</option>
+                                <!-- Add more banks as needed -->
+                            </select><br>
+                            <label for="accountNumber">Account Number:</label>
+                            <input type="text" id="accountNumber" placeholder="Enter Account Number"><br>
+                            <label for="securePassword">Secure Password/OTP:</label>
+                            <input type="password" id="securePassword" placeholder="Enter Password/OTP"><br>
+                        </div>
+
+                        <label>
+                            <input type="radio" name="paymentMethod" value="UPI" required onclick="showUPIDetails()"> UPI
+                        </label><br>
+                        <div id="upi-details" style="display: none;">
+                            <label for="upiID">UPI ID:</label>
+                            <input type="text" id="upiID" placeholder="Enter UPI ID"><br>
+                            <label for="linkedMobile">Linked Mobile Number:</label>
+                            <input type="text" id="linkedMobile" placeholder="Enter Mobile Number"><br>
+                            <label for="upiPIN">UPI PIN:</label>
+                            <input type="password" id="upiPIN" placeholder="Enter UPI PIN"><br>
+                        </div>
+
+                        <label>
+                            <input type="radio" name="paymentMethod" value="Card Payments" required onclick="showCardDetails()"> Card Payments
+                        </label><br>
+                        <div id="card-details" style="display: none;">
+                            <label for="cardNumber">Card Number:</label>
+                            <input type="text" id="cardNumber" placeholder="Enter Card Number"><br>
+                            <label for="expirationDate">Expiration Date:</label>
+                            <input type="text" id="expirationDate" placeholder="MM/YY"><br>
+                            <label for="cvv">CVV Code:</label>
+                            <input type="text" id="cvv" placeholder="Enter CVV"><br>
+                            <label for="billingAddress">Billing Address:</label>
+                            <input type="text" id="billingAddress" placeholder="Enter Billing Address"><br>
+                        </div>
+                    </div>
+
+                    <button type="button" class="back-btn" onclick="showStep(2)">Back</button>
+                    <button type="button" class="next-btn" onclick="submitPayment()">Submit Payment</button>
+                </div>
+
+                <div class="form-step" id="step4" style="display:none;">
+                    <h2>Payment Receipt</h2>
+                    <div id="verificationDetails" style="border: 1px solid #000; padding: 20px; margin: 10px 0;">
+                        <h3>JNTU ENGG COLLEGE HOSTEL ANANTAPUR</h3>
+                        <h3>JNTU COLLEGE ANANTAPUR, ANANTAPUR-515002</h3>
+                        <p>Date: <span id="receipt-date"></span></p>
+                        <p>SBCollect Reference Number: <span id="receipt-reference"></span></p>
+                        <p>Category: <span id="receipt-category"></span></p>
+                        <p>Amount: <span id="receipt-amount"></span></p>
+                        <p>ROLL NUMBER: <span id="receipt-rollNumber"></span></p>
+                        <p>STUDENT NAME: <span id="receipt-studentName"></span></p>
+                        <p>EMAIL ID: <span id="receipt-email"></span></p>
+                        <p>MOBILE NUMBER: <span id="receipt-mobile"></span></p>
+                        <p>COURSE: <span id="receipt-course"></span></p>
+                        <p>YEAR OF STUDY: <span id="receipt-year"></span></p>
+                        <p>TOTAL HOSTEL FEE: <span id="receipt-totalFee"></span></p>
+                        <p>Transaction charge: <span id="receipt-transactionCharge"></span></p>
+                        <p>Total Amount (In Figures): <span id="receipt-totalAmount"></span></p>
+                        <p>Total Amount (In Words): <span id="receipt-totalAmountWords"></span></p>
+                        <p>Remarks: <span id="receipt-remarks"></span></p>
+                        <p>Notification 1: <span id="receipt-notification1"></span></p>
+                        <p>Notification 2: <span id="receipt-notification2"></span></p>
+                    </div>
+                    <button type="button" onclick="printReceipt()">Print Receipt</button>
+                    <button type="button" onclick="shareReceipt()">Share Receipt</button>
+                    <button type="button" onclick="downloadPDF()">Download Receipt as PDF</button>
+                    <button type="button" onclick="showSection('content-section')">Back to Main Content</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="account-settings-section" style="display: none;">
+            <h2>Account Settings</h2>
+            <form id="account-settings-form" onsubmit="return updateAccount()">
+                <label for="update-username">Username:</label>
+                <input type="text" id="update-username" name="update-username" required><br><br>
+                <label for="update-password">Password:</label>
+                <input type="password" id="update-password" name="update-password" required><br><br>
+                <button type="submit">Update</button>
+            </form>
+            <p id="update-message" style="display: none;">Account updated successfully!</p>
+            <button onclick="showSection('content-section')">Back to Main Content</button>
+        </section>
+
+        <section id="receipts-section" style="display: none;">
+            <h2>Your Receipts</h2>
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Purpose</th>
+                    <th>Action</th>
+                </tr>
+                <tbody id="user-receipts">
+                    <!-- User receipts will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="showAdminDashboard()">Back to Admin Dashboard</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 College Fee Management System</p>
+    </footer>
+
+    <script>
+        let userCredentials = JSON.parse(localStorage.getItem('userCredentials')) || [];
+        let currentUser   = null;
+        let paymentRecords = JSON.parse(localStorage.getItem('paymentRecords')) || {};
+        let deletedPayments = JSON.parse(localStorage.getItem('deletedPayments')) || [];
+
+        const adminCredentials = {
+            username: "admin",
+            password: "admin123"
+        };
+
+        let sessionTimeout;
+        const timeoutDuration = 15 * 60 * 1000;
+
+        function resetSessionTimeout() {
+            clearTimeout(sessionTimeout);
+            sessionTimeout = setTimeout(() => {
+                alert("Your session has expired. You will be redirected to the login page.");
+                showSection('timeout-section');
+            }, timeoutDuration);
+        }
+
+        window.onload = function() {
+            resetSessionTimeout();
+            generateCaptcha();
+            loadSavedCredentials();
+            updateAdminDashboard();
+            showSection('login-section'); // Show the login section by default
+        };
+
+        document.addEventListener('mousemove', resetSessionTimeout);
+        document.addEventListener('keypress', resetSessionTimeout);
+        document.addEventListener('click', resetSessionTimeout);
+
+        function loadSavedCredentials() {
+            const savedUser   = localStorage.getItem('currentUser  ');
+            if (savedUser  ) {
+                currentUser   = savedUser  ;
+                showSection('content-section');
+            } else {
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }
+        }
+
+        function showSection(sectionId) {
+            const sections = ['admin-login-section', 'admin-dashboard', 'payment-management-section', 'student-management-section', 'login-section', 'forgot-password-section', 'signup-section', 'timeout-section', 'content-section', 'payment-history-section', 'payment-reminders-section', 'fee-payment-section', 'account-settings-section', 'receipts-section'];
+            sections.forEach(section => {
+                document.getElementById(section).style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function validateAdminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                showSection('admin-dashboard');
+                return false;
+            } else {
+                document.getElementById('admin-login-error').style.display = 'block';
+                return false;
+            }
+        }
+
+        function updateAdminDashboard() {
+            const totalStudents = userCredentials.length;
+            const totalCollection = Object.values(paymentRecords).flat().reduce((acc, record) => acc + parseFloat(record.amount), 0);
+            const pendingDues = totalCollection * 0.1; // Example: 10% of total collection as pending dues
+            const todaysTransactions = Object.values(paymentRecords).flat().filter(record => new Date(record.date).toLocaleDateString() === new Date().toLocaleDateString()).length;
+
+            document.getElementById('total-students').innerText = totalStudents;
+            document.getElementById('total-collection').innerText = `₹${totalCollection.toFixed(2)}`;
+            document.getElementById('pending-dues').innerText = `₹${pendingDues.toFixed(2)}`;
+            document.getElementById('todays-transactions').innerText = todaysTransactions;
+        }
+
+        function showAdminDashboard() {
+            showSection('admin-dashboard');
+            updateAdminDashboard();
+        }
+
+        function showPaymentManagement() {
+            showSection('payment-management-section');
+            populatePaymentManagement();
+        }
+
+        function showStudentManagement() {
+            showSection('student-management-section');
+            populateStudentManagement();
+        }
+
+        function populatePaymentManagement() {
+            const paymentManagementTable = document.getElementById('payment-management-records');
+            paymentManagementTable.innerHTML = '';
+            for (const username in paymentRecords) {
+                paymentRecords[username].forEach(record => {
+                    const row = `<tr>
+                        <td>${record.date}</td>
+                        <td>${username}</td>
+                        <td>₹${record.amount}</td>
+                        <td>${record.status}</td>
+                        <td>${record.admissionNumber}</td>
+                        <td>${record.purpose}</td>
+                        <td>${record.referralCode}</td>
+                        <td>
+                            < div class="dropdown">
+                                <button class="dropbtn">...</button>
+                                <div class="dropdown-content">
+                                    <a href="#" onclick="deletePayment('${username}', '${record.date}')">Delete</a>
+                                    <a href="#" onclick="sharePayment('${username}', '${record.date}')">Share</a>
+                                    <a href="#" onclick="viewReceipt('${record.date}')">View Receipt</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+                    paymentManagementTable.innerHTML += row;
+                });
+            }
+        }
+
+        function populateStudentManagement() {
+            const studentManagementTable = document.getElementById('student-management-records');
+            studentManagementTable.innerHTML = '';
+            userCredentials.forEach(user => {
+                const row = `<tr>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <button onclick="deleteStudent('${user.username}')">Delete</button>
+                    </td>
+                </tr>`;
+                studentManagementTable.innerHTML += row;
+            });
+        }
+
+        function validateLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const user = userCredentials.find(user => user.username === username && user.password === password);
+            if (user) {
+                currentUser    = username;
+                localStorage.setItem('currentUser   ', username);
+                showSection('content-section');
+                return false;
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                return false;
+            }
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('forgot-email').value;
+            const user = userCredentials.find(user => user.email === email);
+            if (user) {
+                alert("Password reset link has been sent to your email.");
+                showSection('login-section');
+                return false;
+            } else {
+                document.getElementById('forgot-error').style.display = 'block';
+                return false;
+            }
+        }
+
+        function signUp() {
+            const newUsername = document.getElementById('new-username').value;
+            const newEmail = document.getElementById('new-email').value;
+            const newPassword = document.getElementById('new-password').value;
+
+            userCredentials.push({ username: newUsername, email: newEmail, password: newPassword });
+            localStorage.setItem('userCredentials', JSON.stringify(userCredentials));
+            alert("Sign up successful! You can now log in.");
+            showSection('login-section');
+            return false;
+        }
+
+        function showPaymentHistory() {
+            showSection('payment-history-section');
+            populatePaymentHistory();
+        }
+
+        function populatePaymentHistory() {
+            const paymentHistoryTable = document.getElementById('payment-records');
+            paymentHistoryTable.innerHTML = '';
+            if (paymentRecords[currentUser ]) {
+                paymentRecords[currentUser ].forEach(record => {
+                    const row = `<tr>
+                        <td><input type="checkbox"></td>
+                        <td>${record.date}</td>
+                        <td>₹${record.amount}</td>
+                        <td>${record.status}</td>
+                        <td>${record.admissionNumber}</td>
+                        <td>${record.purpose}</td>
+                        <td>${record.referralCode}</td>
+                        <td>
+                            <button onclick="deletePayment('${currentUser }', '${record.date}')">Delete</button>
+                            <button onclick="viewReceipt('${record.date}')">View Receipt</button>
+                        </td>
+                    </tr>`;
+                    paymentHistoryTable.innerHTML += row;
+                });
+            }
+        }
+
+        function showPaymentReminders() {
+            showSection('payment-reminders-section');
+        }
+
+        function showFeePayment() {
+            showSection('fee-payment-section');
+        }
+
+        function updateTotalFee() {
+            const feeType = document.getElementById('feeType').value;
+            let totalFee = 0;
+
+            switch (feeType) {
+                case 'hostel-basic':
+                    totalFee = 3000;
+                    break;
+                case 'hostel-standard':
+                    totalFee = 3500;
+                    break;
+                case 'college-undergraduate':
+                    totalFee = 8000;
+                    break;
+                case 'college-postgraduate':
+                    totalFee = 10000;
+                    break;
+                case 'sweden-batch':
+                    totalFee = 150000;
+                    break;
+                case 'examination-regular':
+                    totalFee = 715;
+                    break;
+                case 'examination-supplementary':
+                    totalFee = 315;
+                    break;
+                default:
+                    totalFee = 0;
+            }
+
+            document.getElementById('totalFee').value = totalFee;
+        }
+
+        function showStep(step) {
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            steps .forEach(s => {
+                document.getElementById(s).style.display = 'none';
+            });
+            document.getElementById(`step${step}`).style.display = 'block';
+
+            if (step === 2) {
+                document.getElementById('verify-feeType').innerText = document.getElementById('feeType').value;
+                document.getElementById('verify-rollNumber').innerText = document.getElementById('rollNumber').value;
+                document.getElementById('verify-studentName').innerText = document.getElementById('studentName').value;
+                document.getElementById('verify-email').innerText = document.getElementById('email').value;
+                document.getElementById('verify-mobile').innerText = document.getElementById('mobile').value;
+                document.getElementById('verify-course').innerText = document.getElementById('course').value;
+                document.getElementById('verify-year').innerText = document.getElementById('year').value;
+                document.getElementById('verify-totalFee').innerText = document.getElementById('totalFee').value;
+                document.getElementById('verify-remarks').innerText = document.getElementById('remarks').value;
+                document.getElementById('verify-totalAmount').innerText = document.getElementById('totalFee').value; // Assuming total amount is same as total fee
+            }
+        }
+
+        function submitPayment() {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            let paymentSuccessful = false;
+
+            // Simulate payment processing
+            paymentSuccessful = true; // Simulate success for all payment methods
+
+            if (paymentSuccessful) {
+                const paymentDetails = {
+                    date: new Date().toLocaleDateString(),
+                    amount: document.getElementById('totalFee').value,
+                    status: 'Completed',
+                    admissionNumber: document.getElementById('rollNumber').value,
+                    purpose: document.getElementById('feeType').value,
+                    referralCode: generateUniqueReferralCode(),
+                    studentName: document.getElementById('studentName').value,
+                    email: document.getElementById('email').value,
+                    mobile: document.getElementById('mobile').value,
+                    course: document.getElementById('course').value,
+                    year: document.getElementById('year').value,
+                    totalFee: document.getElementById('totalFee').value,
+                    transactionCharge: 0,
+                    totalAmount: document.getElementById('totalFee').value,
+                    totalAmountWords: convertNumberToWords(document.getElementById('totalFee').value),
+                    remarks: document.getElementById('remarks').value,
+                    notification1: 'Payment successful.',
+                    notification2: 'Thank you for your payment.'
+                };
+
+                if (!paymentRecords[currentUser ]) {
+                    paymentRecords[currentUser ] = [];
+                }
+                paymentRecords[currentUser ].push(paymentDetails);
+                localStorage.setItem('paymentRecords', JSON.stringify(paymentRecords));
+                alert('Payment submitted successfully!');
+                showReceipt(paymentDetails);
+            } else {
+                alert('Payment failed. Please check your details and try again.');
+            }
+        }
+
+        function showReceipt(paymentDetails) {
+            document.getElementById('receipt-date').innerText = paymentDetails.date;
+            document.getElementById('receipt-reference').innerText = paymentDetails.referralCode;
+            document.getElementById('receipt-category').innerText = paymentDetails.purpose;
+            document.getElementById('receipt-amount').innerText = `₹${paymentDetails.amount}`;
+            document.getElementById('receipt-rollNumber').innerText = paymentDetails.admissionNumber;
+            document.getElementById('receipt-studentName').innerText = paymentDetails.studentName;
+            document.getElementById('receipt-email').innerText = paymentDetails.email;
+            document.getElementById('receipt-mobile').innerText = paymentDetails.mobile;
+            document.getElementById('receipt-course').innerText = paymentDetails.course;
+            document.getElementById('receipt-year').innerText = paymentDetails.year;
+            document.getElementById('receipt-totalFee').innerText = `₹${paymentDetails.totalFee}`;
+            document.getElementById('receipt-transactionCharge').innerText = `₹${paymentDetails.transactionCharge}`;
+            document.getElementById('receipt-totalAmount').innerText = `₹${paymentDetails.totalAmount}`;
+            document.getElementById('receipt-totalAmountWords').innerText = paymentDetails.totalAmountWords;
+            document.getElementById('receipt-remarks').innerText = paymentDetails.remarks;
+            document.getElementById('receipt-notification1').innerText = paymentDetails.notification1;
+            document.getElementById('receipt-notification2').innerText = paymentDetails.notification2;
+
+            showStep(4);
+        }
+
+ //javascript
+        function generateUniqueReferralCode() {
+            return 'REF' + Math.floor(Math.random() * 1000000);
+        }
+
+        function convertNumberToWords(amount) {
+            // Function to convert numbers to words (implementation not shown)
+            return amount; // Placeholder
+        }
+
+        function printReceipt() {
+            // Function to print the receipt (implementation not shown)
+            alert("Print functionality is not implemented yet.");
+        }
+
+        function shareReceipt() {
+            // Function to share the receipt (implementation not shown)
+            alert("Share functionality is not implemented yet.");
+        }
+
+        function downloadPDF() {
+            // Function to download the receipt as PDF (implementation not shown)
+            alert("Download PDF functionality is not implemented yet.");
+        }
+
+        function deletePayment(username, date) {
+            const paymentIndex = paymentRecords[username].findIndex(record => record.date === date);
+            if (paymentIndex > -1) {
+                deletedPayments.push(paymentRecords[username][paymentIndex]);
+                paymentRecords[username].splice(paymentIndex, 1);
+                localStorage.setItem('paymentRecords', JSON.stringify(paymentRecords));
+                localStorage.setItem('deletedPayments', JSON.stringify(deletedPayments));
+                alert("Payment record deleted successfully.");
+                populatePaymentManagement();
+            }
+        }
+
+        function viewReceipt(date) {
+            const payment = paymentRecords[currentUser ].find(record => record.date === date);
+            if (payment) {
+                showReceipt(payment);
+            }
+        }
+
+        function deleteSelectedPayments() {
+            const selectedPayments = document.querySelectorAll('#payment-records input[type="checkbox"]:checked');
+            selectedPayments.forEach(paymentCheckbox => {
+                const row = paymentCheckbox.closest('tr');
+                const username = row.cells[1].innerText; // Assuming username is in the second cell
+                const date = row.cells[0].innerText; // Assuming date is in the first cell
+                deletePayment(username, date);
+            });
+        }
+
+        function generateCaptcha() {
+            const captchaText = Math.random().toString(36).substring(2, 8);
+            document.getElementById('captcha-display').innerText = captchaText;
+        }
+
+        function updateAccount() {
+            const updatedUsername = document.getElementById('update-username').value;
+            const updatedPassword = document.getElementById('update-password').value;
+
+            const userIndex = userCredentials.findIndex(user => user.username === currentUser );
+            if (userIndex > -1) {
+                userCredentials[userIndex].username = updatedUsername;
+                userCredentials[userIndex].password = updatedPassword;
+                localStorage.setItem('userCredentials', JSON.stringify(userCredentials));
+                alert("Account updated successfully!");
+                document.getElementById('update-message').style.display = 'block';
+                return false;
+            }
+            return false;
+        }
+
+        function logout() {
+            currentUser  = null;
+            localStorage.removeItem('currentUser ');
+            showSection('login-section');
+        }
+
+        function logoutAdmin() {
+            showSection('admin-login-section');
+        }
+
+        function filterPayments() {
+            const filterValue = document.getElementById('payment-filter').value.toLowerCase();
+            const paymentManagementTable = document.getElementById('payment-management-records');
+            const rows = paymentManagementTable.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let rowVisible = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(filterValue)) {
+                        rowVisible = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = rowVisible ? '' : 'none';
+            }
+        }
+
+        function sortPayments() {
+            const paymentManagementTable = document.getElementById('payment-management-records');
+            const rows = Array.from(paymentManagementTable.getElementsByTagName('tr')).slice(1); // Exclude header row
+
+            rows.sort((a, b) => {
+                const amountA = parseFloat(a.cells[2].innerText.replace('₹', ''));
+                const amountB = parseFloat(b.cells[2].innerText.replace('₹', ''));
+                return amountA - amountB; // Sort by amount
+            });
+
+            rows.forEach(row => paymentManagementTable.appendChild(row)); // Re-append sorted rows
+        }
+    </script>
+</body>
+</html>

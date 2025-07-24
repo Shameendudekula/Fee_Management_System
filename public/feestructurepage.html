@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Fee Structure - JNTUA Fee Management System</title>
+    <style>
+        :root {
+            --primary-color: rgba(13, 71, 161, 0.9);
+            --secondary-color: #d0d8e7;
+            --accent-color: #d0cb32;
+            --text-color: #252323;
+            --light-bg: #e7ebef;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(225, 235, 246, 0.9)),
+                        url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp5nz-d6XT-EJQTbQNLCdG9U2ArV2WHB-iW-4ncTdGO72oPPvPirnEjSgiJVXbu2CADC8&usqp=CAU');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .navbar {
+            background-color: rgba(26, 35, 126, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        main {
+            flex: 1;
+            padding: 80px 20px 20px;
+        }
+
+        .fee-container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        select {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: var(--text-color);
+            padding: 8px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        select:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+        }
+
+        #feeDisplay {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: rgb(195, 161, 161);
+            padding: 20px 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#home">
+                <img src="https://imgs.search.brave.com/439qbX2uo10FAJDEk5DMuvXCwELWe27OdPZEcrSig_Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vdGh1bWIv/ZS9lMy9KYXdhaGFy/bGFsX05laHJ1X1Rl/Y2hub2xvZ2ljYWxf/VW5pdmVyc2l0eSxf/QW5hbnRhcHVyX2xv/Z28ucG5nLzIyMHB4/LUphd2FoYXJsYWxf/TmVocnVfVGVjaG5v/bG9naWNhbF9Vbml2/ZXJzaXR5LF9BbmFu/dGFwdXJfbG9nby5w/bmc" alt="JNTUA Logo" height="45">
+                <span class="ms-2">JNTUA FEE MANAGEMENT SYSTEM</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="servicespage.html">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="feedback&suggestionspage.html">Feedback & Suggestions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="FeeManagementSystem.html">HomePage</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light ms-2 px-4" href="payment.html">Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="fee-container">
+            <h2 class="text-center mb-4">Fee Structure</h2>
+            
+            <div>
+                <label>Select Fee Type:</label>
+                <select id="feeType" onchange="handleFeeType()">
+                    <option value="">Select Fee Type</option>
+                    <option value="hostel">Hostel Fee</option>
+                    <option value="college">College Fee</option>
+                    <option value="exam">Examination Fee</option>
+                </select>
+            </div>
+
+            <div id="collegeFeeDiv" style="display: none;">
+                <label>Select Program Level:</label>
+                <select id="programLevel" onchange="handleProgramLevel()">
+                    <option value="">Select Level</option>
+                    <option value="ug">Under Graduate</option>
+                    <option value="pg">Post Graduate</option>
+                </select>
+
+                <div id="programDiv" style="display: none;">
+                    <label>Select Program:</label>
+                    <select id="program" onchange="handleProgram()">
+                        <option value="">Select Program</option>
+                    </select>
+                </div>
+
+                <div id="branchDiv" style="display: none;">
+                    <label>Select Branch:</label>
+                    <select id="branch" onchange="handleBranch()">
+                        <option value="">Select Branch</option>
+                        <option value="cse">Computer Science Engineering</option>
+                        <option value="ece">Electronics and Communication Engineering</option>
+                        <option value="eee">Electrical and Electronics Engineering</option>
+                        <option value="civil">Civil Engineering</option>
+                        <option value="mechanical">Mechanical Engineering</option>
+                        <option value="chemical">Chemical Engineering</option>
+                    </select>
+                </div>
+
+                <div id="cseBatchDiv" style="display: none;">
+                    <label>Select CSE Batch:</label>
+                    <select id="cseBatch" onchange="handleCSEBatch()">
+                        <option value="">Select Batch</option>
+                        <option value="eamcet">EAMCET Batch</option>
+                        <option value="sweden">Sweden Batch</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="hostelFeeDiv" style="display: none;">
+                <h3>Hostel Fee Details</h3>
+                <p>Fee: ₹3,000 per month</p>
+            </div>
+
+            <div id="examFeeDiv" style="display: none;">
+                <label>Select Exam Type:</label>
+                <select id="examType" onchange="handleExamType()">
+                    <option value="">Select Type</option>
+                    <option value="regular">Regular Examination</option>
+                    <option value="supply">Supplementary Examination</option>
+                </select>
+            </div>
+
+            <div id="feeDisplay" style="display: none;">
+                <h3>Fee Details</h3>
+                <p id="feeAmount"></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2025 College Fee Management System</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function handleFeeType() {
+            const feeType = document.getElementById('feeType').value;
+            document.getElementById('hostelFeeDiv').style.display = 'none';
+            document.getElementById('collegeFeeDiv').style.display = 'none';
+            document.getElementById('examFeeDiv').style.display = 'none';
+            document.getElementById('feeDisplay').style.display = 'none';
+
+            if (feeType === 'hostel') {
+                document.getElementById('hostelFeeDiv').style.display = 'block';
+            } else if (feeType === 'college') {
+                document.getElementById('collegeFeeDiv').style.display = 'block';
+            } else if (feeType === 'exam') {
+                document.getElementById('examFeeDiv').style.display = 'block';
+            }
+        }
+
+        function handleProgramLevel() {
+            const programLevel = document.getElementById('programLevel').value;
+            const programSelect = document.getElementById('program');
+            
+            programSelect.innerHTML = '<option value="">Select Program</option>';
+            document.getElementById('programDiv').style.display = 'block';
+            document.getElementById('branchDiv').style.display = 'none';
+            document.getElementById('cseBatchDiv').style.display = 'none';
+            document.getElementById('feeDisplay').style.display = 'none';
+
+            if (programLevel === 'ug') {
+                programSelect.innerHTML += '<option value="btech">B.Tech</option>';
+            } else if (programLevel === 'pg') {
+                programSelect.innerHTML += `
+                    <option value="mtech">M.Tech</option>
+                    <option value="mba">MBA</option>
+                    <option value="mca">MCA</option>
+                `;
+            }
+        }
+
+        function handleProgram() {
+            const program = document.getElementById('program').value;
+            const branchDiv = document.getElementById('branchDiv');
+            const feeDisplay = document.getElementById('feeDisplay');
+            const feeAmount = document.getElementById('feeAmount');
+
+            branchDiv.style.display = 'none';
+            document.getElementById('cseBatchDiv').style.display = 'none';
+            feeDisplay.style.display = 'none';
+
+            if (program === 'btech') {
+                branchDiv.style.display = 'block';
+            } else {
+                let fee = '';
+                switch(program) {
+                    case 'mtech': fee = '₹50,000 per year'; break;
+                    case 'mba': fee = '₹60,000 per year'; break;
+                    case 'mca': fee = '₹27,000 per year'; break;
+                }
+                if (fee) {
+                    feeAmount.textContent = `Total Fee: ${fee}`;
+                    feeDisplay.style.display = 'block';
+                }
+            }
+        }
+
+        function handleBranch() {
+            const branch = document.getElementById('branch').value;
+            const cseBatchDiv = document.getElementById('cseBatchDiv');
+            const feeDisplay = document.getElementById('feeDisplay');
+            const feeAmount = document.getElementById('feeAmount');
+
+            if (branch === 'cse') {
+                cseBatchDiv.style.display = 'block';
+                feeDisplay.style.display = 'none';
+            } else {
+                cseBatchDiv.style.display = 'none';
+                feeAmount.textContent = 'Total Fee: ₹10,000 per year';
+                feeDisplay.style.display = 'block';
+            }
+        }
+
+        function handleCSEBatch() {
+            const batch = document.getElementById('cseBatch').value;
+            const feeDisplay = document.getElementById('feeDisplay');
+            const feeAmount = document.getElementById('feeAmount');
+
+            if (batch) {
+                const fee = batch === 'sweden' ? '₹150,000 per year' : '₹10,000 per year';
+                feeAmount.textContent = `Total Fee: ${fee}`;
+                feeDisplay.style.display = 'block';
+            }
+        }
+
+        function handleExamType() {
+            const examType = document.getElementById('examType').value;
+            const feeDisplay = document.getElementById('feeDisplay');
+            const feeAmount = document.getElementById('feeAmount');
+
+            if (examType) {
+                const fee = examType === 'regular' ? '₹715 per semister(all subjects)' : '₹315 per subject(all subjects)';
+                feeAmount.textContent = `Examination Fee: ${fee}`;
+                feeDisplay.style.display = 'block';
+            } else {
+                feeDisplay.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

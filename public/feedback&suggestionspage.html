@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Feedback and Suggestions - JNTUA Fee Management System</title>
+    <style>
+        :root {
+            --primary-color: rgba(13, 71, 161, 0.9);
+            --secondary-color: #e4e5e97f;
+            --accent-color: #d0cb32;
+            --text-color: #252323;
+            --light-bg: #eaeef294;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure the body takes at least the full height of the viewport */
+            background: linear-gradient(135deg, rgba(26, 35, 126, 0.9), rgba(225, 235, 246, 0.9)),
+                        url('https://media.mopinion.com/wp-content/uploads/2022/03/27133400/customer-feedback-blog-min.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: rgba(26, 35, 126, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            text-align: center;
+            margin: 50px 0;
+        }
+
+        main {
+            flex: 1; /* Allow main to grow and fill space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        section {
+            background: rgba(255, 255, 255, 0.3); /* Light transparent background for the form */
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px; /* Limit the width of the form */
+            transition: background 0.3s ease; /* Smooth transition for background */
+        }
+
+        section:hover {
+            background: rgba(250, 245, 245, 0.5); /* Darker on hover */
+        }
+
+        /* Transparent Input Fields */
+        .form-control {
+            background: rgba(255, 255, 255, 0.2); /* Transparent background */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Light border */
+            color: var(--text-color); /* Text color */
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.3); /* Slightly darker on focus */
+            border-color: var(--primary-color); /* Change border color on focus */
+            box-shadow: 0 0 5px rgba(13, 71, 161, 0.5); /* Add shadow on focus */
+        }
+
+        /* Transparent File Input */
+        input[type="file"] {
+            background: rgba(255, 255, 255, 0.2); /* Transparent background */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Light border */
+            color: var(--text-color); /* Text color */
+            padding: 10px; /* Add some padding for better appearance */
+        }
+
+        input[type="file"]:focus {
+            background: rgba(255, 255, 255, 0.3); /* Slightly darker on focus */
+            border-color: var(--primary-color); /* Change border color on focus */
+            box-shadow: 0 0 5px rgba(13, 71, 161, 0.5); /* Add shadow on focus */
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: rgb(195, 161, 161);
+            padding: 20px 0;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: rgba(244, 247, 250, 0.599);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: rgba(13, 71, 161, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#home">
+            <img src="https://imgs.search.brave.com/439qbX2uo10FAJDEk5DMuvXCwELWe27OdPZEcrSig_Y/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vdGh1bWIv/ZS9lMy9KYXdhaGFy/bGFsX05laHJ1X1Rl/Y2hub2xvZ2ljYWxf/VW5pdmVyc2l0eSxf/QW5hbnRhcHVyX2xv/Z28ucG5nLzIyMHB4/LUphd2FoYXJsYWxf/TmVocnVfVGVjaG5v/bG9naWNhbF9Vbml2/ZXJzaXR5LF9BbmFu/dGFwdXJfbG9nby5w/bmc" alt="JNTUA Logo" height="45">
+            <span class="ms-2">JNTUA FEE MANAGEMENT SYSTEM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="servicespage.html">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="FeeManagementSystem.html">HomePage</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contactpage.html">Contact Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-light ms-2 px-4" href="payment.html" onclick="showSection('login-section')">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header>
+    <h1>Feedback and Suggestions</h1>
+</header>
+
+<main>
+    <section>
+        <h2>We Value Your Input</h2>
+        <form>
+            <div class="mb-3">
+                <label for="suggestion" class="form-label">Your Suggestion:</label>
+                <textarea id="suggestion" name="suggestion" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="file-input" class="form-label">File:</label>
+                <input type="file" id="file-input" name="file" class="form-control">
+            </div>
+            <button type="submit" class="btn">Submit</button>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <div class="container text-center">
+        <p>&copy; 2025 College Fee Management System</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
