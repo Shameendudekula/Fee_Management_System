@@ -81,6 +81,28 @@ This project is licensed under the [MIT License](LICENSE).
 Developed as part of a web-based frontend project for **JNTUA** students.  
 Contributions and improvements are welcome!
 
+## 🚀 Getting Started
+
+To run this project locally, follow these steps:
+
+### 📦 Prerequisites
+- Node.js installed
+
+### ▶️ Run Instructions
+
+1. Clone the repository:
+   ```bash
+  git clone https://github.com/Shameendudekula/Fee_Management_System.git
+  cd Fee_Management_System
+  npm install
+  node server1.js
+
+  Use a Live Server (VS Code extension) to open FeeManagementSystem.html
+                  OR
+
+Manually open the HTML file in your browser:
+FeeManagementSystem.html
+
 
 
 
